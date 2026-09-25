@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#101114">
+<title>Escalas Flamencas PRO</title>
+<style>
+:root{
+  --bg:#0c0d10;--panel:#16181d;--panel2:#20232a;--border:#313640;
+  --text:#f4f5f7;--muted:#adb3bd;--gold:#e8b34d;--red:#e95367;
+  --blue:#57b8ff;--green:#5bd58c;--purple:#b78cff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0b0c0f,#12151b 60%,#0b0c0f);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:20;padding:16px;background:rgba(12,13,16,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+header h1{margin:0;font-size:clamp(22px,4vw,34px)}
+header p{margin:4px 0 0;color:var(--muted);font-size:13px}
+main{max-width:1200px;margin:auto;padding:12px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+select,input,button{width:100%;border:1px solid var(--border);border-radius:11px;background:var(--panel2);color:var(--text);padding:11px;font-size:14px}
+button{font-weight:700;cursor:pointer}
+button.primary{background:var(--gold);color:#181006;border-color:transparent}
+button.danger{background:#352027}
+button.small{padding:8px 10px;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row button{width:auto}
+.pill{background:#242832;border:1px solid var(--border);padding:7px 10px;border-radius:999px;font-size:13px}
+.summary{display:flex;gap:8px;flex-wrap:wrap}
+.summary strong{color:var(--gold)}
+.degrees{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.degree{background:#222630;border:1px solid var(--border);padding:7px 9px;border-radius:9px;text-align:center;min-width:48px}
+.degree .n{font-weight:800}.degree .d{font-size:11px;color:var(--muted)}
+.fret-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fretboard{min-width:980px;border:1px solid #493a2e;border-radius:14px;overflow:hidden;background:linear-gradient(90deg,#6e482b,#865b37,#684328)}
+.fret-row{display:grid;grid-template-columns:55px repeat(13,1fr)}
+.string-label{background:#151515;border-right:2px solid #ddd1be;display:flex;justify-content:center;align-items:center;font-size:12px;font-weight:800}
+.fret{min-height:56px;border-right:2px solid rgba(210,210,210,.72);border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;position:relative}
+.fret:after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:#eee7d9;opacity:.85}
+.note{position:relative;z-index:2;width:34px;height:34px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:11px;box-shadow:0 2px 7px #0008;border:2px solid #ffffff33}
+.note small{font-size:9px;font-weight:700}
+.note.playing-note{transform:scale(1.28);outline:4px solid #fff!important;box-shadow:0 0 8px #fff,0 0 20px var(--gold),0 0 34px var(--gold)!important;filter:brightness(1.55);z-index:6;transition:transform .08s ease,box-shadow .08s ease,filter .08s ease}
+.root{background:var(--red)}.third{background:var(--green);color:#07180f}.fifth{background:var(--gold);color:#1d1404}.scale{background:var(--blue);color:#06131c}.position{outline:3px solid var(--purple)}
+.fret-numbers{display:grid;grid-template-columns:55px repeat(13,1fr);min-width:980px;font-size:11px;color:var(--muted);margin-top:4px}
+.fret-numbers div{text-align:center}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:9px}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.metronome{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.bigtempo{font-size:30px;font-weight:900;text-align:center;color:var(--gold)}
+.beat{width:18px;height:18px;border-radius:50%;background:#3a3d45;display:inline-block;margin:3px}
+.beat.on{background:var(--gold);box-shadow:0 0 14px #e8b34d}
+.practice{line-height:1.5;color:#ddd}
+.exercise{background:#22262e;border-left:4px solid var(--gold);padding:10px;border-radius:10px}
+@media(max-width:800px){.grid4{grid-template-columns:1fr 1fr}.grid3,.metronome{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){main{padding:8px}.grid4,.grid3,.metronome{grid-template-columns:1fr}.fretboard,.fret-numbers{min-width:860px}.fret-row,.fret-numbers{grid-template-columns:48px repeat(13,1fr)}.fret{min-height:50px}}
+
+.palo-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+.compas-box{background:#1d2128;border:1px solid var(--border);border-radius:14px;padding:12px}
+.compas-title{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.compas-title strong{color:var(--gold)}
+.counts{display:grid;gap:6px;align-items:center}
+.count-cell{
+  min-height:46px;border-radius:10px;background:#292d35;border:1px solid #3a404b;
+  display:flex;align-items:center;justify-content:center;font-weight:800;position:relative
+}
+.count-cell.accent{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.count-cell.active{background:var(--gold);color:#171006;transform:scale(1.04)}
+.count-cell .mark{position:absolute;bottom:3px;font-size:9px;color:var(--muted)}
+.count-cell.active .mark{color:#302208}
+.palo-info{line-height:1.5;color:#ddd}
+.palo-info b{color:var(--gold)}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap}
+.toggle-row label{margin:0;display:flex;align-items:center;gap:6px;background:#232730;border:1px solid var(--border);padding:8px 10px;border-radius:10px;color:#ddd}
+.toggle-row input{width:auto}
+@media(max-width:800px){.palo-grid{grid-template-columns:1fr}}
+
+
+.chord-section{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chord-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.chord-card{background:#20242c;border:1px solid var(--border);border-radius:12px;padding:10px}
+.chord-card h4{margin:0 0 8px;font-size:15px}
+.chord-diagram{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:8px 0}
+.chord-string{background:#2a2f39;border-radius:8px;padding:7px 4px;text-align:center;font-size:11px}
+.chord-string b{display:block;font-size:13px;color:var(--gold)}
+.cadence-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cadence-step{padding:8px 10px;border-radius:10px;background:#292e37;border:1px solid var(--border);font-weight:800}
+.arrow{color:var(--muted);font-weight:700}
+@media(max-width:800px){.chord-section{grid-template-columns:1fr}}
+
+
+.chord-svg-wrap{display:flex;justify-content:center;margin:6px 0 10px}
+.chord-svg{width:150px;max-width:100%;height:auto}
+.chord-meta{font-size:11px;color:var(--muted);text-align:center;margin-top:3px}
+
+
+.sample-ok{border-color:#3d8a5c!important;color:#8de7b0!important}
+.sample-loading{border-color:#a57931!important;color:#f0c875!important}
+.sample-error{border-color:#8d3e4a!important;color:#ff98a7!important}
+
+.fret.hidden-zone{display:none}
+.fret-number.hidden-zone{display:none}
+
+/* Adaptación responsive móvil/tablet: solo presentación, sin alterar la lógica */
+html,body{max-width:100%;overflow-x:hidden}
+main,.panel{width:100%;min-width:0}
+.grid4>div,.grid3>div,.metronome>div,.chord-section>div,.palo-grid>div{min-width:0}
+select,input,button{max-width:100%}
+.fret-scroll{width:100%;max-width:100%;overflow-x:hidden}
+.fretboard,.fret-numbers{width:100%!important;min-width:0!important;max-width:100%!important}
+.fret-row,.fret-numbers{width:100%}
+.string-label{font-size:clamp(8px,2.2vw,12px);padding:2px;overflow:hidden}
+.fret{min-width:0;min-height:clamp(42px,8vw,56px)}
+.note{width:clamp(22px,5.8vw,34px);height:clamp(22px,5.8vw,34px);font-size:clamp(8px,2vw,11px)}
+.note small{font-size:clamp(7px,1.7vw,9px)}
+.counts{width:100%;overflow:hidden}
+.count-cell{min-width:0;padding:4px 1px;font-size:clamp(9px,2.4vw,14px)}
+.chord-grid{grid-template-columns:repeat(auto-fit,minmax(min(145px,100%),1fr))}
+.chord-card{min-width:0}
+.chord-svg{width:min(150px,100%)}
+@media(max-width:800px){
+ .grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .grid3,.metronome{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .palo-grid,.chord-section{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+ header{padding:11px 10px}
+ main{padding:7px}
+ .panel{padding:9px;border-radius:12px}
+ .grid4,.grid3,.metronome{grid-template-columns:1fr}
+ .row{gap:6px}
+ .row button{flex:1 1 auto}
+ .summary{gap:5px}.pill{font-size:12px;padding:6px 8px}
+ .degrees{gap:4px}.degree{min-width:42px;padding:6px 5px}
+ .fret{min-height:42px;border-right-width:1px}
+ .note{width:22px;height:22px;font-size:8px;border-width:1px;box-shadow:0 1px 4px #0008}
+ .note small{font-size:7px}
+ .string-label{font-size:8px;writing-mode:vertical-rl;transform:rotate(180deg)}
+ .legend{gap:6px;font-size:10px}
+ .counts{gap:2px}
+ .count-cell{min-height:38px;border-radius:7px;font-size:9px}
+ .count-cell .mark{font-size:6px}
+ .cadence-row{gap:5px}.cadence-step{padding:7px 8px;font-size:12px}
+}
+@media(max-width:390px){
+ .fret{min-height:38px}
+ .note{width:19px;height:19px;font-size:7px}
+ .string-label{font-size:7px}
+}
+
+
+/* ===== MODO DE ALTO CONTRASTE PARA VISIÓN =====
+   Tónica = amarillo. Resto de notas = blanco luminoso.
+   Se evitan azul, verde y rojo en las tablas y diagramas musicales. */
+.note.root{
+  background:#ffd400 !important;
+  color:#111 !important;
+  border-color:#fff3a0 !important;
+  box-shadow:0 0 10px rgba(255,212,0,.95),0 2px 7px #0008 !important;
+}
+.note.scale,
+.note.third,
+.note.fifth{
+  background:#ffffff !important;
+  color:#050505 !important;
+  border-color:#ffffff !important;
+  box-shadow:0 0 8px rgba(255,255,255,.9),0 2px 7px #0008 !important;
+}
+.note small{color:#111 !important}
+
+/* Grados / tablas superiores */
+.degree{
+  background:#f7f7f7 !important;
+  color:#080808 !important;
+  border-color:#fff !important;
+}
+.degree .n{color:#080808 !important}
+.degree .d{color:#303030 !important}
+.degree:first-child{
+  background:#ffd400 !important;
+  color:#111 !important;
+  border-color:#fff3a0 !important;
+}
+.degree:first-child .n,.degree:first-child .d{color:#111 !important}
+
+/* Diagramas de acordes: puntos de digitación blancos.
+   La cejilla/referencia destacada permanece amarilla. */
+.chord-svg circle[fill="#57b8ff"]{
+  fill:#ffffff !important;
+  stroke:#ffffff !important;
+}
+.chord-svg circle[fill="#57b8ff"] + text{
+  fill:#050505 !important;
+}
+/* Cuerdas al aire: blanco en vez de verde */
+.chord-svg circle[stroke="#5bd58c"]{
+  stroke:#ffffff !important;
+}
+/* Acentos/cadencias: amarillo y blanco, sin codificación rojo/verde/azul */
+.cadence-step{
+  background:#f7f7f7 !important;
+  color:#090909 !important;
+  border-color:#ffffff !important;
+}
+.chord-card button.small{
+  background:#f7f7f7 !important;
+  color:#090909 !important;
+  border-color:#ffffff !important;
+}
+
+/* Leyenda coherente con el nuevo código visual */
+.legend .dot[style*="var(--red)"]{background:#ffd400 !important}
+.legend .dot[style*="var(--green)"],
+.legend .dot[style*="var(--blue)"]{background:#ffffff !important}
+.legend .dot[style*="var(--gold)"]{background:#ffffff !important}
+
+/* La nota que está sonando sigue siendo muy visible sin azul/verde/rojo. */
+.playing-note{
+  outline:4px solid #fff !important;
+  box-shadow:0 0 8px #fff,0 0 20px #fff,0 0 34px #ffd400 !important;
+  transform:scale(1.16) !important;
+  filter:brightness(1.12) !important;
+}
+
+
+.string-label{background:transparent!important;color:#fff!important;font-weight:900!important}
+.note.root{width:40px!important;height:40px!important;font-size:12px!important}
+.note.open-note{width:42px!important;height:42px!important;border-radius:6px!important;font-size:12px!important}
+.note.open-note.root{width:45px!important;height:45px!important;border-radius:6px!important;font-size:13px!important}
+
+</style>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><script>if("serviceWorker"in navigator){addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));}</script></head>
+<body>
+<header>
+<h1>Escalas Flamencas PRO</h1>
+<p>Mástil interactivo • modos griegos • digitación • audio • metrónomo • picado</p>
+</header>
+<main>
+<section class="panel grid4">
+<div><label>Familia</label><select id="family"><option value="flamenco">Flamenco</option><option value="greek">Modos griegos</option><option value="other">Otras</option></select></div>
+<div><label>Escala / modo</label><select id="scale"></select></div>
+<div><label>Tonalidad</label><select id="root"></select></div>
+<div><label>Visualización</label><select id="display"><option value="notes">Notas</option><option value="degrees">Grados</option><option value="fingers">Dedos</option></select></div>
+</section>
+
+<section class="panel">
+<div class="summary">
+<div class="pill">Escala: <strong id="tScale"></strong></div>
+<div class="pill">Tónica: <strong id="tRoot"></strong></div>
+<div class="pill">Notas: <strong id="tNotes"></strong></div>
+</div>
+<div id="degrees" class="degrees"></div>
+</section>
+
+<section class="panel grid3">
+<div>
+<label>Posición / zona</label>
+<select id="position">
+<option value="all">Todo el mástil</option>
+<option value="0-4">Posición abierta 0–4</option>
+<option value="3-7">Posición 3–7</option>
+<option value="5-9">Posición 5–9</option>
+<option value="7-11">Posición 7–11</option>
+<option value="8-12">Posición 8–12</option>
+</select>
+</div>
+<div>
+<label>Dirección</label>
+<select id="direction"><option value="up">Ascendente</option><option value="down">Descendente</option><option value="updown">Ascendente y descendente</option></select>
+</div>
+<div>
+<label>Velocidad reproducción</label>
+<select id="playSpeed"><option value="600">Lenta</option><option value="350" selected>Media</option><option value="200">Rápida</option></select>
+</div>
+</section>
+
+<section class="panel">
+<div class="grid3" style="margin-bottom:10px">
+  <div>
+    <label>Motor de sonido de guitarra</label>
+    <select id="soundEngine">
+      <option value="samples" selected>Muestras reales · guitarra española</option>
+      <option value="synth">Modelo físico · funciona sin Internet</option>
+    </select>
+  </div>
+  <div>
+    <label>Estado de las muestras</label>
+    <div id="sampleStatus" class="pill" style="min-height:42px;display:flex;align-items:center">Sin cargar</div>
+  </div>
+  <div>
+    <label>Banco real</label>
+    <button id="loadSamples">Cargar / recargar muestras</button>
+  </div>
+</div>
+<div class="row">
+<button id="playScale" class="primary">▶ Reproducir escala</button>
+<button id="stopScale" class="danger">■ Parar</button>
+<button id="toggleFinger">Mostrar digitación sugerida</button>
+</div>
+</section>
+
+<section class="panel">
+<div class="fret-scroll" id="fretScroll">
+<div class="fretboard" id="fretboard"></div>
+<div class="fret-numbers" id="fretNumbers"></div>
+</div>
+<div class="legend">
+<span><span class="dot" style="background:var(--red)"></span>Tónica</span>
+<span><span class="dot" style="background:var(--green)"></span>3ª</span>
+<span><span class="dot" style="background:var(--gold)"></span>5ª</span>
+<span><span class="dot" style="background:var(--blue)"></span>Escala</span>
+<span><span class="dot" style="background:var(--purple)"></span>Zona seleccionada</span>
+</div>
+</section>
+
+<section class="panel metronome">
+<div>
+<label>Tempo BPM</label>
+<input id="bpm" type="range" min="40" max="220" value="80">
+<div class="bigtempo"><span id="bpmVal">80</span> BPM</div>
+</div>
+<div>
+<label>Compás</label>
+<select id="meter"><option value="4">4 pulsos</option><option value="3">3 pulsos</option><option value="12">12 tiempos flamencos</option></select>
+<div id="beats" style="margin-top:12px;text-align:center"></div>
+</div>
+<div>
+<label>Metrónomo</label>
+<div class="row">
+<button id="startMetro" class="primary">Iniciar</button>
+<button id="stopMetro">Parar</button>
+</div>
+</div>
+</section>
+
+<section class="panel grid3">
+<div>
+<label>Ejercicio de picado</label>
+<select id="exercise">
+<option value="1">1-2-3-4 cromático</option>
+<option value="2">Escala en grupos de 3</option>
+<option value="3">Escala en grupos de 4</option>
+<option value="4">Secuencia 1-2-3-2</option>
+</select>
+</div>
+<div>
+<label>Alternancia</label>
+<select id="picking"><option>i-m-i-m</option><option>m-i-m-i</option></select>
+</div>
+<div>
+<label>Objetivo BPM</label>
+<input id="targetBpm" type="number" min="40" max="220" value="100">
+</div>
+<div class="exercise" style="grid-column:1/-1">
+<strong>Práctica sugerida:</strong>
+<div id="practiceText" class="practice"></div>
+</div>
+</section>
+
+
+<section class="panel palo-grid">
+<div class="compas-box">
+  <div class="compas-title">
+    <div><strong>Compás flamenco</strong> <span id="paloMeterText"></span></div>
+    <div class="row">
+      <button id="startPalo" class="primary">▶ Iniciar compás</button>
+      <button id="stopPalo">■ Parar</button>
+    </div>
+  </div>
+  <div class="grid3">
+    <div>
+      <label>Palo</label>
+      <select id="palo">
+        <option value="solea">Soleá</option>
+        <option value="alegrias">Alegrías</option>
+        <option value="bulerias">Bulerías</option>
+        <option value="seguiriyas">Seguiriyas</option>
+        <option value="tangos">Tangos</option>
+        <option value="rumba">Rumba</option>
+        <option value="guajira">Guajira</option>
+      </select>
+    </div>
+    <div>
+      <label>Tempo</label>
+      <input id="paloBpm" type="range" min="50" max="240" value="90">
+      <div class="bigtempo"><span id="paloBpmVal">90</span> BPM</div>
+    </div>
+    <div>
+      <label>Sonido</label>
+      <div class="toggle-row">
+        <label><input type="checkbox" id="soundClick" checked> Clic</label>
+        <label><input type="checkbox" id="soundPalmas" checked> Palmas</label>
+      </div>
+    </div>
+  </div>
+  <div id="paloCounts" class="counts" style="margin-top:12px"></div>
+</div>
+<div class="compas-box">
+  <h3 style="margin-top:0">Guía del palo</h3>
+  <div id="paloInfo" class="palo-info"></div>
+  <div class="exercise" style="margin-top:10px">
+    <strong>Práctica con escala:</strong>
+    <div id="paloPractice"></div>
+  </div>
+</div>
+</section>
+
+
+<section class="panel chord-section">
+<div>
+  <h3 style="margin-top:0">Acordes flamencos por palo</h3>
+  <div class="grid3">
+    <div>
+      <label>Palo / contexto</label>
+      <select id="chordPalo">
+        <option value="solea">Soleá</option>
+        <option value="alegrias">Alegrías</option>
+        <option value="bulerias">Bulerías</option>
+        <option value="seguiriyas">Seguiriyas</option>
+        <option value="tangos">Tangos</option>
+        <option value="rumba">Rumba</option>
+        <option value="guajira">Guajira</option>
+      </select>
+    </div>
+    <div>
+      <label>Posición flamenca</label>
+      <select id="chordPos">
+        <option value="arriba">Por arriba</option>
+        <option value="medio">Por medio</option>
+      </select>
+    </div>
+    <div>
+      <label>Reproducción</label>
+      <button id="playCadence" class="primary">▶ Escuchar cadencia</button>
+    </div>
+  </div>
+  <div id="cadenceTitle" class="pill" style="display:inline-block;margin-top:10px"></div>
+  <div id="cadenceRow" class="cadence-row" style="margin-top:10px"></div>
+</div>
+<div>
+  <h3 style="margin-top:0">Diagramas de acordes</h3>
+  <div id="chordGrid" class="chord-grid"></div>
+</div>
+</section>
+
+<section class="panel">
+<h3 style="margin-top:0">Cómo usarla musicalmente</h3>
+<div id="desc" class="practice"></div>
+<div id="tip" class="exercise" style="margin-top:10px"></div>
+</section>
+</main>
+
+<script>
+const N=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const ES={"C":"Do","C#":"Do#","D":"Re","D#":"Re#","E":"Mi","F":"Fa","F#":"Fa#","G":"Sol","G#":"Sol#","A":"La","A#":"La#","B":"Si"};
+const STRINGS=[{l:"1ª E",n:4,m:64},{l:"2ª B",n:11,m:59},{l:"3ª G",n:7,m:55},{l:"4ª D",n:2,m:50},{l:"5ª A",n:9,m:45},{l:"6ª E",n:4,m:40}];
+const scales={
+flamenco:{
+"Frigio flamenco":{i:[0,1,3,5,7,8,10],d:["1","♭2","♭3","4","5","♭6","♭7"],desc:"Modo frigio, base esencial del color flamenco.",tip:"En Mi: E-F-G-A-B-C-D. Trabaja cierres F-E y melodías que descansen sobre Mi."},
+"Frigio dominante":{i:[0,1,4,5,7,8,10],d:["1","♭2","3","4","5","♭6","♭7"],desc:"Frigio con tercera mayor, muy útil para resolver sobre acordes mayores de tónica.",tip:"En Mi: E-F-G#-A-B-C-D. Muy efectivo sobre E mayor."},
+"Frigio mixto flamenco":{i:[0,1,3,4,5,7,8,10],d:["1","♭2","♭3","3","4","5","♭6","♭7"],desc:"Mapa práctico que combina tercera menor y mayor, reflejando el lenguaje real de muchas falsetas.",tip:"Alterna G y G# en Mi según el acorde y el momento de tensión/resolución."},
+"Menor armónica":{i:[0,2,3,5,7,8,11],d:["1","2","♭3","4","5","♭6","7"],desc:"Escala menor con séptima mayor; genera el frigio dominante como quinto modo.",tip:"Practícala en La menor y observa cómo E frigio dominante aparece como su quinto modo."}
+},
+greek:{
+"Jónico":{i:[0,2,4,5,7,9,11],d:["1","2","3","4","5","6","7"],desc:"Escala mayor.",tip:"Úsala como referencia para comparar todos los modos."},
+"Dórico":{i:[0,2,3,5,7,9,10],d:["1","2","♭3","4","5","6","♭7"],desc:"Menor con sexta mayor.",tip:"Escucha especialmente la 6ª mayor."},
+"Frigio":{i:[0,1,3,5,7,8,10],d:["1","♭2","♭3","4","5","♭6","♭7"],desc:"Menor con segunda menor.",tip:"Es el modo diatónico más importante para comprender la base melódica flamenca."},
+"Lidio":{i:[0,2,4,6,7,9,11],d:["1","2","3","#4","5","6","7"],desc:"Mayor con cuarta aumentada.",tip:"Mantén la #4 como nota característica."},
+"Mixolidio":{i:[0,2,4,5,7,9,10],d:["1","2","3","4","5","6","♭7"],desc:"Mayor con séptima menor.",tip:"Ideal sobre acordes dominantes."},
+"Eólico":{i:[0,2,3,5,7,8,10],d:["1","2","♭3","4","5","♭6","♭7"],desc:"Menor natural.",tip:"Compáralo con dórico: cambia la sexta."},
+"Locrio":{i:[0,1,3,5,6,8,10],d:["1","♭2","♭3","4","♭5","♭6","♭7"],desc:"Modo inestable con quinta disminuida.",tip:"Úsalo para entrenar el oído sobre acordes semidisminuidos."}
+},
+other:{
+"Escala mayor":{i:[0,2,4,5,7,9,11],d:["1","2","3","4","5","6","7"],desc:"Escala mayor diatónica. Es la referencia fundamental para armonía, melodía y construcción de acordes.",tip:"Practícala en todas las tonalidades y compárala con el modo Jónico: contienen las mismas notas."},
+"Escala gitana (Gypsy)":{i:[0,2,3,6,7,8,11],d:["1","2","♭3","#4","5","♭6","7"],desc:"Escala gitana menor, también conocida como Hungarian minor: menor armónica con cuarta aumentada, de sonoridad muy característica.",tip:"Escucha especialmente el intervalo entre ♭3 y #4 y la resolución de la 7ª hacia la tónica. No es la escala flamenca básica; úsala como color adicional."},
+"Pentatónica menor":{i:[0,3,5,7,10],d:["1","♭3","4","5","♭7"],desc:"Cinco notas, excelente para fraseo y técnica.",tip:"Haz secuencias de tres y cuatro notas."},
+"Pentatónica mayor":{i:[0,2,4,7,9],d:["1","2","3","5","6"],desc:"Pentatónica luminosa.",tip:"Trabaja desplazamientos rítmicos."},
+"Menor melódica":{i:[0,2,3,5,7,9,11],d:["1","2","♭3","4","5","6","7"],desc:"Menor con sexta y séptima mayores.",tip:"Útil para ampliar vocabulario moderno."}
+}};
+const family=document.getElementById("family"),scale=document.getElementById("scale"),root=document.getElementById("root"),display=document.getElementById("display"),position=document.getElementById("position");
+N.forEach((x,i)=>{let o=document.createElement("option");o.value=i;o.textContent=ES[x]+" ("+x+")";if(x==="E")o.selected=true;root.appendChild(o)});
+function load(){scale.innerHTML="";Object.keys(scales[family.value]).forEach(k=>{let o=document.createElement("option");o.value=k;o.textContent=k;scale.appendChild(o)});render()}
+function note(i){return N[(i+120)%12]}
+let showFingers=false;
+
+function getZone(){
+  if(position.value==="all") return {a:0,b:12};
+  const [a,b]=position.value.split("-").map(Number);
+  // La zona 0–4 es una posición ABIERTA: incluye explícitamente el traste 0.
+  if(position.value==="0-4") return {a:0,b:4};
+  return {a,b};
+}
+
+function fingerForFret(f){
+  if(f===0)return "0";
+  const {a}=getZone();
+  // Digitación pedagógica relativa a la zona seleccionada.
+  // En posición abierta usamos 1-4 desde traste 1.
+  const base = position.value==="all" ? Math.max(1,f-3) : Math.max(1,a);
+  return String(Math.max(1,Math.min(4,f-base+1)));
+}
+
+function inPos(f){
+  const {a,b}=getZone();
+  return f>=a && f<=b;
+}
+
+function focusSelectedZone(){
+  const wrap=document.getElementById("fretScroll");
+  if(!wrap)return;
+  // Compatible también con WebView/Android antiguos.
+  try{ wrap.scrollLeft=0; }catch(e){}
+}
+
+function render(){
+ const s=scales[family.value][scale.value],r=+root.value,notes=s.i.map(x=>(r+x)%12);
+ const {a,b}=getZone();
+ tScale.textContent=scale.value;
+ tRoot.textContent=ES[note(r)]+" ("+note(r)+")";
+ tNotes.textContent=notes.map(note).join(" – ");
+ desc.textContent=s.desc;
+ tip.textContent=s.tip;
+
+ degrees.innerHTML="";
+ s.i.forEach((x,j)=>{
+   let d=document.createElement("div");
+   d.className="degree";
+   d.innerHTML=`<div class="n">${note((r+x)%12)}</div><div class="d">${s.d[j]}</div>`;
+   degrees.appendChild(d)
+ });
+
+ fretboard.innerHTML="";
+ STRINGS.forEach(st=>{
+  let row=document.createElement("div");
+  row.className="fret-row";
+  // Ajustamos columnas según zona visible.
+  const visibleCount = position.value==="all" ? 13 : (b-a+1);
+  row.style.gridTemplateColumns=`clamp(34px,9vw,55px) repeat(${visibleCount},minmax(0,1fr))`;
+
+  let lab=document.createElement("div");
+  lab.className="string-label";
+  lab.textContent=st.l;
+  row.appendChild(lab);
+
+  for(let f=0;f<=12;f++){
+   if(position.value!=="all" && !inPos(f)) continue;
+
+   let c=document.createElement("div");
+   c.className="fret";
+   let nn=(st.n+f)%12;
+   const rel=(nn-r+12)%12;
+   let idx=s.i.indexOf(rel);
+
+   if(idx>=0){
+    let z=document.createElement("div");
+    let cls="note scale";
+    if(nn===r)cls="note root";
+    else if([3,4].includes(s.i[idx]))cls="note third";
+    else if(s.i[idx]===7)cls="note fifth";
+
+    // Cuando hay una zona seleccionada, todas las notas visibles pertenecen a ella.
+    if(position.value!=="all") cls+=" position";
+    if(f===0) cls+=" open-note";
+    z.className=cls;
+    z.dataset.pc=String(nn);
+    z.dataset.fret=String(f);
+    z.dataset.string=String(STRINGS.indexOf(st));
+    z.dataset.midi=String(st.m+f);
+
+    let txt=
+      display.value==="degrees" ? s.d[idx] :
+      display.value==="fingers" ? fingerForFret(f) :
+      note(nn);
+
+    z.innerHTML=txt+(showFingers&&display.value!=="fingers"?`<small>${fingerForFret(f)}</small>`:"");
+    c.appendChild(z);
+   }
+   row.appendChild(c);
+  }
+  fretboard.appendChild(row);
+ });
+
+ const visibleFrets = position.value==="all"
+   ? Array.from({length:13},(_,i)=>i)
+   : Array.from({length:b-a+1},(_,i)=>a+i);
+
+ fretNumbers.style.gridTemplateColumns=`clamp(34px,9vw,55px) repeat(${visibleFrets.length},minmax(0,1fr))`;
+ fretNumbers.innerHTML="<div></div>"+visibleFrets.map(i=>`<div class="fret-number">${i}</div>`).join("");
+
+ // En la versión responsive el mástil siempre ocupa el ancho disponible.
+ // No fijamos min-width desde JavaScript: así el cambio de zona puede
+ // reconstruir correctamente el número de columnas en móvil y tablet.
+ fretboard.style.minWidth="0";
+ fretNumbers.style.minWidth="0";
+ fretboard.style.width="100%";
+ fretNumbers.style.width="100%";
+
+ requestAnimationFrame(focusSelectedZone);
+}
+family.onchange=load;scale.onchange=render;root.onchange=render;display.onchange=render;position.onchange=()=>{render();};
+toggleFinger.onclick=()=>{showFingers=!showFingers;toggleFinger.textContent=showFingers?"Ocultar digitación sugerida":"Mostrar digitación sugerida";render()};
+
+let audioCtx=null,playTimers=[];
+let masterOut=null,bodyIR=null;
+
+function ctx(){
+  if(!audioCtx){
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    masterOut=audioCtx.createGain();
+    masterOut.gain.value=.88;
+
+    // Resonancia corta de "caja" generada localmente.
+    const conv=audioCtx.createConvolver();
+    const len=Math.floor(audioCtx.sampleRate*.34);
+    const ir=audioCtx.createBuffer(2,len,audioCtx.sampleRate);
+    for(let ch=0;ch<2;ch++){
+      const d=ir.getChannelData(ch);
+      for(let i=0;i<len;i++){
+        const t=i/audioCtx.sampleRate;
+        const env=Math.exp(-10*t);
+        d[i]=(Math.random()*2-1)*env*.28;
+      }
+    }
+    conv.buffer=ir;
+    bodyIR=conv;
+
+    const bodyEQ=audioCtx.createBiquadFilter();
+    bodyEQ.type="peaking";
+    bodyEQ.frequency.value=205;
+    bodyEQ.Q.value=1.1;
+    bodyEQ.gain.value=4.2;
+
+    const presence=audioCtx.createBiquadFilter();
+    presence.type="peaking";
+    presence.frequency.value=2850;
+    presence.Q.value=.9;
+    presence.gain.value=2.5;
+
+    const air=audioCtx.createBiquadFilter();
+    air.type="lowpass";
+    air.frequency.value=7600;
+
+    masterOut.connect(bodyEQ).connect(presence).connect(air).connect(audioCtx.destination);
+    bodyIR.connect(masterOut);
+  }
+  if(audioCtx.state==="suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+
+function midiFreq(m){return 440*Math.pow(2,(m-69)/12)}
+
+// Banco CC0 de FreePats: guitarra clásica española real.
+// Usamos muestras cercanas y playbackRate para cubrir todo el mástil con
+// muy poca transposición, preservando el timbre natural.
+const REAL_SAMPLE_BASE="https://raw.githubusercontent.com/freepats/spanish-classical-guitar/main/samples/";
+const REAL_SAMPLE_MAP=[
+  [40,"E2.flac"], [43,"G2.flac"], [45,"A2.flac"],
+  [48,"C3.flac"], [52,"E3.flac"], [55,"G3.flac"], [57,"A3.flac"],
+  [60,"C4.flac"], [64,"E4.flac"], [67,"G4.flac"], [69,"A4.flac"],
+  [72,"C5.flac"], [76,"E5.flac"], [79,"G5.flac"], [81,"A5.flac"], [83,"B5.flac"]
+];
+const realBuffers=new Map();
+let sampleLoadPromise=null;
+
+function setSampleStatus(text,cls=""){
+  const el=document.getElementById("sampleStatus");
+  if(!el)return;
+  el.textContent=text;
+  el.classList.remove("sample-ok","sample-loading","sample-error");
+  if(cls)el.classList.add(cls);
+}
+
+async function loadRealSamples(force=false){
+  if(sampleLoadPromise && !force)return sampleLoadPromise;
+  if(force){realBuffers.clear();sampleLoadPromise=null}
+  setSampleStatus("Cargando guitarra real…","sample-loading");
+  sampleLoadPromise=(async()=>{
+    const a=ctx();
+    let ok=0;
+    for(const [midi,file] of REAL_SAMPLE_MAP){
+      if(realBuffers.has(midi)){ok++;continue}
+      try{
+        const safeFile=file.replace("#","%23");
+        const res=await fetch(REAL_SAMPLE_BASE+safeFile,{cache:"force-cache"});
+        if(!res.ok)throw new Error("HTTP "+res.status);
+        const ab=await res.arrayBuffer();
+        const buf=await a.decodeAudioData(ab.slice(0));
+        realBuffers.set(midi,buf);ok++;
+        setSampleStatus(`Cargando muestras reales… ${ok}/${REAL_SAMPLE_MAP.length}`,"sample-loading");
+      }catch(e){
+        console.warn("Muestra no disponible:",file,e);
+      }
+    }
+    if(ok>=6){
+      setSampleStatus(`Guitarra real lista · ${ok} muestras`,"sample-ok");
+      return true;
+    }
+    setSampleStatus("No se pudieron cargar. Uso modo offline.","sample-error");
+    // Permitimos un nuevo intento al volver a seleccionar la guitarra real.
+    sampleLoadPromise=null;
+    return false;
+  })();
+  return sampleLoadPromise;
+}
+
+function nearestSample(midi){
+  let best=null,dist=999;
+  for(const [rootMidi] of REAL_SAMPLE_MAP){
+    if(!realBuffers.has(rootMidi))continue;
+    const d=Math.abs(rootMidi-midi);
+    if(d<dist){dist=d;best=rootMidi}
+  }
+  return best;
+}
+
+function sampledGuitarNote(midi,opts={}){
+  const a=ctx(),rootMidi=nearestSample(midi);
+  if(rootMidi===null)return false;
+  const buf=realBuffers.get(rootMidi);
+  const src=a.createBufferSource();
+  src.buffer=buf;
+  src.playbackRate.value=Math.pow(2,(midi-rootMidi)/12);
+
+  const hp=a.createBiquadFilter();
+  hp.type="highpass";hp.frequency.value=55;
+
+  const tone=a.createBiquadFilter();
+  tone.type="lowpass";
+  tone.frequency.value=opts.brightness===undefined?7600:5200+opts.brightness*2800;
+
+  const body=a.createBiquadFilter();
+  body.type="peaking";body.frequency.value=opts.bodyFreq||205;body.Q.value=1.1;body.gain.value=2.2;
+
+  const gain=a.createGain();
+  const now=a.currentTime+(opts.delay||0);
+  const vol=opts.vol??.16;
+  gain.gain.setValueAtTime(.0001,now);
+  gain.gain.exponentialRampToValueAtTime(vol,now+.006);
+  gain.gain.exponentialRampToValueAtTime(.001,now+(opts.dur||1.25));
+
+  src.connect(hp).connect(tone).connect(body).connect(gain).connect(masterOut);
+  if(bodyIR){
+    const send=a.createGain();send.gain.value=.10;
+    gain.connect(send).connect(bodyIR);
+  }
+  src.start(now);
+  src.stop(now+(opts.dur||1.25)+.08);
+  return true;
+}
+
+async function guitarNoteMidi(midi,opts={}){
+  const engine=document.getElementById("soundEngine")?.value||"samples";
+  if(engine==="samples"){
+    if(realBuffers.size<6)await loadRealSamples(false);
+    if(sampledGuitarNote(midi,opts))return;
+  }
+  flamencoPluck(midiFreq(midi),opts.dur||.85,opts.vol||.145,{
+    delay:opts.delay||0,brightness:opts.brightness??.9,bodyFreq:opts.bodyFreq||215
+  });
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const b=document.getElementById("loadSamples");
+  if(b)b.onclick=()=>loadRealSamples(true);
+  const e=document.getElementById("soundEngine");
+  if(e)e.onchange=async()=>{
+    if(e.value==="samples"){
+      if(realBuffers.size>=6){
+        setSampleStatus(`Guitarra real lista · ${realBuffers.size} muestras`,"sample-ok");
+      }else{
+        setSampleStatus("Cargando guitarra real…","sample-loading");
+        await loadRealSamples(false);
+      }
+    }else if(e.value==="synth"){
+      setSampleStatus("Modo offline activo");
+    }
+  };
+});
+
+
+function flamencoPluck(freq,dur=.9,vol=.18,opts={}){
+  const a=ctx(), now=a.currentTime+(opts.delay||0);
+  const sr=a.sampleRate;
+  const seconds=Math.max(.5,dur+0.22);
+
+  // Karplus-Strong offline: ruido corto filtrado que recircula como cuerda pulsada.
+  const length=Math.floor(sr*seconds);
+  const buf=a.createBuffer(1,length,sr);
+  const data=buf.getChannelData(0);
+  const period=Math.max(2,Math.round(sr/freq));
+  const damping=Math.min(.9985, .994 + Math.min(freq,900)/900*0.002);
+  const pickBrightness=opts.brightness ?? .82;
+
+  for(let i=0;i<period && i<length;i++){
+    const pick=(Math.random()*2-1);
+    data[i]=pick*(.72 + .28*pickBrightness);
+  }
+  let prev=0;
+  for(let i=period;i<length;i++){
+    const avg=(data[i-period]+prev)*.5;
+    const loss=damping-(i/length)*.0018;
+    data[i]=avg*loss;
+    prev=data[i-period];
+  }
+
+  // Ataque de uña: transitorio corto y brillante.
+  const attackLen=Math.min(length,Math.floor(sr*.012));
+  for(let i=0;i<attackLen;i++){
+    const e=1-i/attackLen;
+    data[i]+=((Math.random()*2-1)*e*.20*pickBrightness);
+  }
+
+  const src=a.createBufferSource();
+  src.buffer=buf;
+
+  const hp=a.createBiquadFilter();
+  hp.type="highpass"; hp.frequency.value=55;
+
+  const tone=a.createBiquadFilter();
+  tone.type="lowpass";
+  tone.frequency.value=opts.brightness===undefined ? 6200 : 4200+opts.brightness*3200;
+
+  const body=a.createBiquadFilter();
+  body.type="peaking";
+  body.frequency.value=opts.bodyFreq||210;
+  body.Q.value=1.4;
+  body.gain.value=3.5;
+
+  const g=a.createGain();
+  g.gain.setValueAtTime(.0001,now);
+  g.gain.exponentialRampToValueAtTime(Math.max(.003,vol),now+.006);
+  g.gain.exponentialRampToValueAtTime(.001,now+seconds-.04);
+
+  // Pequeña resonancia paralela de caja.
+  const send=a.createGain();
+  send.gain.value=.18;
+
+  src.connect(hp).connect(tone).connect(body).connect(g).connect(masterOut);
+  g.connect(send).connect(bodyIR);
+
+  src.start(now);
+  src.stop(now+seconds);
+}
+
+function pluck(freq,dur=.55,vol=.14){
+  flamencoPluck(freq,Math.max(.65,dur),vol,{brightness:.9,bodyFreq:215});
+}
+function clearPlayedNotes(){
+  document.querySelectorAll("#fretboard .note.playing-note").forEach(el=>el.classList.remove("playing-note"));
+}
+let lastPlayedGraphicNote=null;
+function lightPlayedNote(midi,gap){
+  clearPlayedNotes();
+  const pc=((midi%12)+12)%12;
+  let candidates=[...document.querySelectorAll(`#fretboard .note[data-pc="${pc}"]`)];
+  // Preferimos la posición cuya altura real sea más cercana al MIDI reproducido.
+  // Así Mi, Fa, Sol... no saltan arbitrariamente entre octavas.
+  if(candidates.length>1){
+    const minDist=Math.min(...candidates.map(el=>Math.abs((+el.dataset.midi)-midi)));
+    const exact=candidates.filter(el=>Math.abs((+el.dataset.midi)-midi)===minDist);
+    if(exact.length)candidates=exact;
+  }
+  if(!candidates.length)return;
+
+  // Ilumina UNA sola posición física por nota, nunca todas las notas
+  // equivalentes del mástil. Elegimos la más cercana a la anterior para
+  // que el recorrido visual sea natural.
+  let chosen=candidates[0];
+  if(lastPlayedGraphicNote && document.body.contains(lastPlayedGraphicNote)){
+    const lf=+lastPlayedGraphicNote.dataset.fret, ls=+lastPlayedGraphicNote.dataset.string;
+    chosen=candidates.reduce((best,el)=>{
+      const score=Math.abs((+el.dataset.fret)-lf)+Math.abs((+el.dataset.string)-ls)*1.35;
+      const bestScore=Math.abs((+best.dataset.fret)-lf)+Math.abs((+best.dataset.string)-ls)*1.35;
+      return score<bestScore?el:best;
+    },candidates[0]);
+  }else{
+    // Para empezar, prioriza una nota cercana al centro de la zona visible.
+    const z=getZone(), centre=(z.a+z.b)/2;
+    chosen=candidates.reduce((best,el)=>
+      Math.abs((+el.dataset.fret)-centre)<Math.abs((+best.dataset.fret)-centre)?el:best
+    ,candidates[0]);
+  }
+
+  chosen.classList.add("playing-note");
+  lastPlayedGraphicNote=chosen;
+  playTimers.push(setTimeout(()=>{
+    chosen.classList.remove("playing-note");
+  },Math.max(120,Math.min(gap*.72,420))));
+}
+function stopPlayback(){playTimers.forEach(clearTimeout);playTimers=[];clearPlayedNotes();lastPlayedGraphicNote=null}
+playScale.onclick=()=>{
+ stopPlayback();let s=scales[family.value][scale.value],r=+root.value,seq=s.i.map(x=>60+r+x);
+ if(direction.value==="down")seq=seq.slice().reverse();
+ if(direction.value==="updown")seq=seq.concat(seq.slice(0,-1).reverse());
+ let gap=+playSpeed.value;
+ seq.forEach((m,i)=>playTimers.push(setTimeout(()=>{
+   lightPlayedNote(m,gap);
+   guitarNoteMidi(m,{dur:.9,vol:.16,brightness:.94,bodyFreq:215});
+ },i*gap)));
+ const total=(seq.length-1)*gap+Math.max(180,Math.min(gap*.9,560));
+ playTimers.push(setTimeout(clearPlayedNotes,total));
+};
+stopScale.onclick=stopPlayback;
+
+
+function metroClick(accent=false){
+  const a=ctx(), now=a.currentTime;
+  const o=a.createOscillator(), g=a.createGain();
+  o.type="sine";
+  o.frequency.setValueAtTime(accent?1450:980,now);
+  o.frequency.exponentialRampToValueAtTime(accent?900:700,now+.035);
+  g.gain.setValueAtTime(accent?.12:.07,now);
+  g.gain.exponentialRampToValueAtTime(.001,now+.055);
+  o.connect(g).connect(masterOut);o.start(now);o.stop(now+.06);
+}
+
+
+let metroTimer=null,beatIndex=0,metroRunning=false;
+
+function drawBeats(){
+  const n=+meter.value;
+  beats.innerHTML=Array.from({length:n},(_,i)=>`<span class="beat" id="b${i}"></span>`).join("");
+}
+
+function tick(){
+  const n=+meter.value;
+  document.querySelectorAll("#beats .beat").forEach(x=>x.classList.remove("on"));
+  const el=document.getElementById("b"+beatIndex);
+  if(el)el.classList.add("on");
+  metroClick(beatIndex===0);
+  beatIndex=(beatIndex+1)%n;
+}
+
+function scheduleMetro(){
+  if(!metroRunning)return;
+  tick();
+  const interval=Math.max(80,60000/Math.max(1,+bpm.value));
+  metroTimer=setTimeout(scheduleMetro,interval);
+}
+
+function startMetroFn(){
+  stopMetroFn();
+  metroRunning=true;
+  beatIndex=0;
+  scheduleMetro();
+  startMetro.textContent="Reiniciar";
+}
+
+function stopMetroFn(){
+  metroRunning=false;
+  if(metroTimer){
+    clearTimeout(metroTimer);
+    clearInterval(metroTimer);
+    metroTimer=null;
+  }
+  document.querySelectorAll("#beats .beat").forEach(x=>x.classList.remove("on"));
+  startMetro.textContent="Iniciar";
+}
+
+bpm.oninput=()=>{
+  bpmVal.textContent=bpm.value;
+  if(metroRunning){
+    if(metroTimer){clearTimeout(metroTimer);metroTimer=null}
+    metroTimer=setTimeout(scheduleMetro,0);
+  }
+};
+
+meter.onchange=()=>{
+  beatIndex=0;
+  drawBeats();
+  if(metroRunning){
+    if(metroTimer){clearTimeout(metroTimer);metroTimer=null}
+    metroTimer=setTimeout(scheduleMetro,0);
+  }
+};
+
+startMetro.onclick=startMetroFn;
+stopMetro.onclick=stopMetroFn;
+drawBeats();
+
+function updatePractice(){
+ let t=+targetBpm.value,e=exercise.value,p=picking.value,txt="";
+ if(e==="1")txt=`Haz 1-2-3-4 por cada cuerda, subiendo y bajando. Alterna ${p}. Empieza 15-20 BPM por debajo de ${t} y sube solo cuando suene limpio.`;
+ if(e==="2")txt=`Toca la escala en grupos de 3 notas: 1-2-3, 2-3-4, 3-4-5… Alterna ${p}. Objetivo: ${t} BPM sin tensión.`;
+ if(e==="3")txt=`Toca la escala en grupos de 4 notas: 1-2-3-4, 2-3-4-5… Mantén ${p} estrictamente. Objetivo: ${t} BPM.`;
+ if(e==="4")txt=`Secuencia 1-2-3-2, 2-3-4-3, etc. Muy útil para coordinación de picado. Mantén ${p}. Objetivo: ${t} BPM.`;
+ practiceText.textContent=txt;
+}
+exercise.onchange=updatePractice;picking.onchange=updatePractice;targetBpm.oninput=updatePractice;updatePractice();
+
+const palos={
+  solea:{
+    name:"Soleá",beats:12,acc:[3,6,8,10,12],labels:["1","2","3","4","5","6","7","8","9","10","11","12"],
+    defaultBpm:90,
+    info:"Compás de 12 tiempos. Acentos de estudio habituales en 3, 6, 8, 10 y 12. Es uno de los marcos esenciales del flamenco.",
+    practice:"Toca una frase corta de 2–4 notas y hazla resolver en 10–12 o en 3–6. Evita correr: busca que la escala caiga dentro del compás."
+  },
+  alegrias:{
+    name:"Alegrías",beats:12,acc:[3,6,8,10,12],labels:["1","2","3","4","5","6","7","8","9","10","11","12"],
+    defaultBpm:120,
+    info:"Compás de 12 tiempos emparentado con la soleá, normalmente más vivo y luminoso. Los acentos básicos de estudio coinciden en 3, 6, 8, 10 y 12.",
+    practice:"Practica motivos ascendentes de la escala y contesta con una frase descendente. Termina frases importantes cerca de 10–12."
+  },
+  bulerias:{
+    name:"Bulerías",beats:12,acc:[3,6,8,10,12],labels:["1","2","3","4","5","6","7","8","9","10","11","12"],
+    defaultBpm:180,
+    info:"Compás de 12 tiempos muy flexible. Para estudiar, usa primero la estructura 3, 6, 8, 10, 12; después podrás interiorizar cierres y desplazamientos.",
+    practice:"Empieza lento. Toca 3–4 notas por ciclo y deja silencios. La prioridad es entrar y salir con compás antes de aumentar velocidad."
+  },
+  seguiriyas:{
+    name:"Seguiriyas",beats:5,acc:[1,3,5],labels:["1","2","3","4","5"],
+    defaultBpm:75,
+    info:"Aquí se representa como ciclo pedagógico de 5 pulsos, agrupado de forma asimétrica. Sirve para estudiar la sensación característica sin sobrecargar la interfaz.",
+    practice:"Usa frases cortas y tensas. Mantén notas largas sobre los pulsos fuertes y movimientos rápidos entre ellos."
+  },
+  tangos:{
+    name:"Tangos",beats:4,acc:[1,3],labels:["1","2","3","4"],
+    defaultBpm:100,
+    info:"Compás binario/cuaternario. Para estudio básico, marca 1 y 3; luego añade contratiempos y palmas.",
+    practice:"Toca células de 4 u 8 notas con picado alternado i-m. Haz coincidir el inicio de cada célula con el pulso 1."
+  },
+  rumba:{
+    name:"Rumba",beats:4,acc:[1,3],labels:["1","2","3","4"],
+    defaultBpm:110,
+    info:"Compás de 4 tiempos, directo y estable. Muy útil para coordinar escalas con rasgueo y síncopas.",
+    practice:"Mantén una base sencilla de 4 tiempos y toca la escala en corcheas. Después desplaza el inicio de la frase al contratiempo."
+  },
+  guajira:{
+    name:"Guajira",beats:12,acc:[3,6,8,10,12],labels:["1","2","3","4","5","6","7","8","9","10","11","12"],
+    defaultBpm:105,
+    info:"Compás de 12 tiempos con carácter más abierto y cadencioso. Para una primera práctica puede estudiarse con la misma cuadrícula base de 12.",
+    practice:"Usa frases cantables, menos densas que en bulerías. Deja respirar la melodía y apoya notas importantes en los acentos."
+  }
+};
+
+let paloTimer=null,paloIndex=0;
+function drawPalo(){
+  const p=palos[palo.value];
+  paloMeterText.textContent=`• ${p.beats} tiempos`;
+  paloInfo.innerHTML=`<b>${p.name}</b><br>${p.info}`;
+  paloPractice.textContent=p.practice;
+  paloCounts.style.gridTemplateColumns=`repeat(${p.beats}, minmax(34px,1fr))`;
+  paloCounts.innerHTML=p.labels.map((lab,i)=>{
+    const beat=i+1, ac=p.acc.includes(beat);
+    return `<div class="count-cell ${ac?'accent':''}" id="pc${i}">${lab}<span class="mark">${ac?'acento':''}</span></div>`
+  }).join("");
+}
+function clap(vol=.12){
+  let a=ctx(),buffer=a.createBuffer(1,Math.floor(a.sampleRate*.06),a.sampleRate),data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(1-i/data.length);
+  let src=a.createBufferSource(),g=a.createGain(),f=a.createBiquadFilter();
+  src.buffer=buffer;f.type="highpass";f.frequency.value=1200;g.gain.value=vol;
+  src.connect(f).connect(g).connect(a.destination);src.start();
+}
+function paloTick(){
+  const p=palos[palo.value], beat=paloIndex+1, accented=p.acc.includes(beat);
+  document.querySelectorAll(".count-cell").forEach(x=>x.classList.remove("active"));
+  let el=document.getElementById("pc"+paloIndex); if(el) el.classList.add("active");
+  if(soundClick.checked) metroClick(accented);
+  if(soundPalmas.checked && accented) clap(.10);
+  paloIndex=(paloIndex+1)%p.beats;
+}
+function stopPaloFn(){
+  if(paloTimer){clearInterval(paloTimer);paloTimer=null}
+  document.querySelectorAll(".count-cell").forEach(x=>x.classList.remove("active"));
+}
+function startPaloFn(){
+  stopPaloFn(); paloIndex=0; paloTick();
+  paloTimer=setInterval(paloTick,60000/+paloBpm.value);
+}
+palo.onchange=()=>{
+  stopPaloFn();
+  paloBpm.value=palos[palo.value].defaultBpm;
+  paloBpmVal.textContent=paloBpm.value;
+  drawPalo();
+};
+paloBpm.oninput=()=>{
+  paloBpmVal.textContent=paloBpm.value;
+  if(paloTimer) startPaloFn();
+};
+startPalo.onclick=startPaloFn;
+stopPalo.onclick=stopPaloFn;
+drawPalo();
+
+
+const chordSets={
+  arriba:{
+    label:"Por arriba (Mi)", tonic:"E",
+    chords:{
+      E:{name:"Mi (E)",frets:["0","2","2","1","0","0"],midis:[40,47,52,56,59,64]},
+      E7:{name:"Mi7 (E7)",frets:["0","2","0","1","0","0"],midis:[40,47,50,56,59,64]},
+      F:{name:"Fa (F)",frets:["1","3","3","2","1","1"],midis:[41,48,53,57,60,65]},
+      F7:{name:"Fa7 (F7)",frets:["1","3","1","2","1","1"],midis:[41,48,51,57,60,65]},
+      G:{name:"Sol (G)",frets:["3","2","0","0","0","3"],midis:[43,47,50,55,59,67]},
+      G7:{name:"Sol7 (G7)",frets:["3","2","0","0","0","1"],midis:[43,47,50,55,59,65]},
+      Am:{name:"La menor (Am)",frets:["x","0","2","2","1","0"],midis:[45,52,57,60,64]},
+      A:{name:"La (A)",frets:["x","0","2","2","2","0"],midis:[45,52,57,61,64]},
+      A7:{name:"La7 (A7)",frets:["x","0","2","0","2","0"],midis:[45,52,55,61,64]},
+      C:{name:"Do (C)",frets:["x","3","2","0","1","0"],midis:[48,52,55,60,64]},
+      C7:{name:"Do7 (C7)",frets:["x","3","2","3","1","0"],midis:[48,52,58,60,64]},
+      D:{name:"Re (D)",frets:["x","x","0","2","3","2"],midis:[50,57,62,66]},
+      D7:{name:"Re7 (D7)",frets:["x","x","0","2","1","2"],midis:[50,57,60,66]},
+      Dm:{name:"Re menor (Dm)",frets:["x","x","0","2","3","1"],midis:[50,57,62,65]},
+      B7:{name:"Si7 (B7)",frets:["x","2","1","2","0","2"],midis:[47,51,57,59,66]},
+      "C#7":{name:"Do#7 (C#7)",frets:["x","4","3","4","2","x"],midis:[49,53,59,61]},
+      "F#m":{name:"Fa# menor (F#m)",frets:["2","4","4","2","2","2"],midis:[42,49,54,57,61,66]}
+    }
+  },
+  medio:{
+    label:"Por medio (La)", tonic:"A",
+    chords:{
+      A:{name:"La (A)",frets:["x","0","2","2","2","0"],midis:[45,52,57,61,64]},
+      A7:{name:"La7 (A7)",frets:["x","0","2","0","2","0"],midis:[45,52,55,61,64]},
+      Bb:{name:"Si♭ (Bb)",frets:["1","1","3","3","3","1"],midis:[46,53,58,62,65]},
+      Bb7:{name:"Si♭7 (Bb7)",frets:["1","1","3","1","3","1"],midis:[46,53,56,62,65]},
+      C:{name:"Do (C)",frets:["x","3","2","0","1","0"],midis:[48,52,55,60,64]},
+      C7:{name:"Do7 (C7)",frets:["x","3","2","3","1","0"],midis:[48,52,58,60,64]},
+      D:{name:"Re (D)",frets:["x","x","0","2","3","2"],midis:[50,57,62,66]},
+      D7:{name:"Re7 (D7)",frets:["x","x","0","2","1","2"],midis:[50,57,60,66]},
+      Dm:{name:"Re menor (Dm)",frets:["x","x","0","2","3","1"],midis:[50,57,62,65]},
+      E:{name:"Mi (E)",frets:["0","2","2","1","0","0"],midis:[40,47,52,56,59,64]},
+      E7:{name:"Mi7 (E7)",frets:["0","2","0","1","0","0"],midis:[40,47,50,56,59,64]},
+      F:{name:"Fa (F)",frets:["1","3","3","2","1","1"],midis:[41,48,53,57,60,65]},
+      F7:{name:"Fa7 (F7)",frets:["1","3","1","2","1","1"],midis:[41,48,51,57,60,65]},
+      G:{name:"Sol (G)",frets:["3","2","0","0","0","3"],midis:[43,47,50,55,59,67]},
+      Gm:{name:"Sol menor (Gm)",frets:["3","5","5","3","3","3"],midis:[43,50,55,58,62,67]},
+      "F#7":{name:"Fa#7 (F#7)",frets:["2","4","2","3","2","2"],midis:[42,49,52,58,61,66]},
+      Bm:{name:"Si menor (Bm)",frets:["x","2","4","4","3","2"],midis:[47,54,59,62,66]}
+    }
+  }
+};
+
+// Repertorio armónico pedagógico ampliado. Incluye las ruedas y cierres
+// más habituales de acompañamiento; el cante puede alterar, prolongar o
+// sustituir acordes según estilo, cantaor y momento del compás.
+const cadenceMap={
+  solea:{
+    arriba:["E7","Am","G","F","E","G7","C","Am","G","F","E","F","E"],
+    medio:["A7","Dm","C","Bb","A","C7","F","Dm","C","Bb","A","Bb","A"],
+    name:"Soleá · letra, cambio y cierre flamenco"
+  },
+  bulerias:{
+    arriba:["E","F","E","Am","G","F","E","G7","C","F","E"],
+    medio:["A","Bb","A","Dm","C","Bb","A","C7","F","Bb","A"],
+    name:"Bulerías · célula I–♭II–I, cadencia y cambios"
+  },
+  seguiriyas:{
+    arriba:["E","F","E","Am","G","F","E","F","E"],
+    medio:["A","Bb","A","Dm","C","Bb","A","Bb","A"],
+    name:"Seguiriyas · llamada, desarrollo y cierre frigio"
+  },
+  alegrias:{
+    arriba:["E","B7","E","A","E","B7","E","C#7","F#m","B7","E"],
+    medio:["A","E7","A","D","A","E7","A","F#7","Bm","E7","A"],
+    name:"Alegrías · armonía mayor, dominante y cambio"
+  },
+  tangos:{
+    arriba:["E","F","E","Am","G","F","E","G","F","E"],
+    medio:["A","Bb","A","Dm","C","Bb","A","C","Bb","A"],
+    name:"Tangos · llamada, cadencia andaluza y cierre"
+  },
+  rumba:{
+    arriba:["Am","G","F","E","Am","F","C","G","E7","Am"],
+    medio:["Dm","C","Bb","A","Dm","Bb","F","C","A7","Dm"],
+    name:"Rumba · cadencia andaluza y rueda tonal habitual"
+  },
+  guajira:{
+    arriba:["E","B7","E","A","E","B7","E","A","E","B7","E"],
+    medio:["A","E7","A","D","A","E7","A","D","A","E7","A"],
+    name:"Guajira · tónica, dominante y subdominante en modo mayor"
+  }
+};
+
+function chordFreq(m){return midiFreq(m)}
+function playChord(midis,dur=1.28){
+  // Rasgueo descendente: cada cuerda entra unos milisegundos después.
+  // Con muestras reales, cada cuerda conserva pequeñas irregularidades acústicas.
+  midis.forEach((m,idx)=>{
+    const low=idx<2;
+    guitarNoteMidi(m,{
+      dur:dur+(low?.16:0),
+      vol:low?.145:.125,
+      delay:idx*.026,
+      brightness:low?.70:.94,
+      bodyFreq:low?188:224
+    });
+  });
+}
+function fingerGuess(frets){
+  const nums=frets.map(x=>x==="x"||x==="0"?0:+x).filter(x=>x>0);
+  const min=nums.length?Math.min(...nums):1;
+  return frets.map(f=>{
+    if(f==="x"||f==="0") return "";
+    let n=+f-min+1;
+    return String(Math.max(1,Math.min(4,n)));
+  });
+}
+function chordSvg(ch){
+  const frets=ch.frets;
+  const sounding=frets.map(x=>x==="x"?null:+x);
+  const positive=sounding.filter(x=>x!==null&&x>0);
+  let base=1;
+  if(positive.length && Math.max(...positive)>4) base=Math.min(...positive);
+  const fingers=fingerGuess(frets);
+  const W=150,H=190,left=28,top=34,stringGap=18,fretGap=24;
+  let svg=`<svg class="chord-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="${ch.name}">
+    <rect x="0" y="0" width="${W}" height="${H}" rx="12" fill="#171a20"/>
+    <text x="${W/2}" y="20" text-anchor="middle" fill="#f4f5f7" font-size="14" font-weight="700">${ch.name}</text>`;
+  for(let s=0;s<6;s++){
+    let x=left+s*stringGap;
+    svg+=`<line x1="${x}" y1="${top}" x2="${x}" y2="${top+4*fretGap}" stroke="#d7d9dd" stroke-width="${s===0||s===5?1.6:1}"/>`;
+  }
+  for(let f=0;f<=4;f++){
+    let y=top+f*fretGap;
+    svg+=`<line x1="${left}" y1="${y}" x2="${left+5*stringGap}" y2="${y}" stroke="#d7d9dd" stroke-width="${f===0&&base===1?4:1.3}"/>`;
+  }
+  if(base>1) svg+=`<text x="8" y="${top+fretGap*.7}" fill="#adb3bd" font-size="11">${base}fr</text>`;
+
+  // barre detection for common shapes
+  const fretGroups={};
+  frets.forEach((f,i)=>{ if(f!=="x"&&f!=="0"){(fretGroups[f]??=[]).push(i)} });
+  Object.entries(fretGroups).forEach(([f,idxs])=>{
+    if(idxs.length>=3){
+      const ff=+f, rel=ff-base+1;
+      if(rel>=1&&rel<=4){
+        const x1=left+Math.min(...idxs)*stringGap, x2=left+Math.max(...idxs)*stringGap, y=top+(rel-.5)*fretGap;
+        svg+=`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#e8b34d" stroke-width="12" stroke-linecap="round" opacity=".95"/>`;
+      }
+    }
+  });
+
+  frets.forEach((f,i)=>{
+    const x=left+i*stringGap;
+    if(f==="x"){
+      svg+=`<text x="${x}" y="${top-10}" text-anchor="middle" fill="#e95367" font-size="14" font-weight="700">×</text>`;
+    }else if(f==="0"){
+      svg+=`<circle cx="${x}" cy="${top-11}" r="5" fill="none" stroke="#5bd58c" stroke-width="2"/>`;
+    }else{
+      const rel=(+f)-base+1;
+      if(rel>=1&&rel<=4){
+        const y=top+(rel-.5)*fretGap;
+        svg+=`<circle cx="${x}" cy="${y}" r="8.5" fill="#57b8ff" stroke="#ffffff55" stroke-width="1.5"/>`;
+        if(fingers[i]) svg+=`<text x="${x}" y="${y+3.5}" text-anchor="middle" fill="#07131c" font-size="10" font-weight="800">${fingers[i]}</text>`;
+      }
+    }
+  });
+  svg+=`<text x="${W/2}" y="${H-14}" text-anchor="middle" fill="#adb3bd" font-size="10">6ª ← cuerdas → 1ª</text></svg>`;
+  return svg;
+}
+function renderChords(){
+  const pos=chordPos.value, paloKey=chordPalo.value, set=chordSets[pos], map=cadenceMap[paloKey];
+  cadenceTitle.textContent=`${map.name} • ${set.label}`;
+  cadenceRow.innerHTML="";
+  const seq=map[pos];
+  seq.forEach((k,i)=>{
+    let s=document.createElement("div");s.className="cadence-step";s.textContent=set.chords[k]?.name||k;cadenceRow.appendChild(s);
+    if(i<seq.length-1){let a=document.createElement("span");a.className="arrow";a.textContent="→";cadenceRow.appendChild(a)}
+  });
+  chordGrid.innerHTML="";
+  [...new Set(seq)].forEach(k=>{
+    const ch=set.chords[k]; if(!ch) return;
+    let card=document.createElement("div");card.className="chord-card";
+    card.innerHTML=`<h4>${ch.name}</h4>
+      <div class="chord-svg-wrap">${chordSvg(ch)}</div>
+      <div class="chord-meta">○ = cuerda al aire · × = no tocar · número = dedo sugerido</div>
+      <button class="small">🔊 Escuchar</button>`;
+    card.querySelector("button").onclick=()=>playChord(ch.midis);
+    chordGrid.appendChild(card);
+  });
+}
+let cadenceTimers=[];
+playCadence.onclick=()=>{
+  cadenceTimers.forEach(clearTimeout);cadenceTimers=[];
+  const pos=chordPos.value, seq=cadenceMap[chordPalo.value][pos], set=chordSets[pos];
+  seq.forEach((k,i)=>cadenceTimers.push(setTimeout(()=>{if(set.chords[k])playChord(set.chords[k].midis,.75)},i*850)));
+};
+chordPalo.onchange=renderChords;
+chordPos.onchange=renderChords;
+renderChords();
+
+function auditScaleDrawings(){
+  try{
+    for(const fam of Object.keys(scales)){
+      for(const [name,sc] of Object.entries(scales[fam])){
+        const unique=[...new Set(sc.i)];
+        if(unique.length!==sc.i.length || sc.i.some(x=>x<0||x>11)){
+          console.warn("Fórmula de escala a revisar:",fam,name,sc.i);
+        }
+      }
+    }
+    // E frigio = E F G A B C D. En afinación estándar, TODAS las cuerdas
+    // al aire pertenecen a la escala: E B G D A E.
+    const ePh=scales.flamenco["Frigio flamenco"];
+    const eSet=new Set(ePh.i.map(x=>(4+x)%12));
+    const openOK=STRINGS.every(st=>eSet.has(st.n));
+    if(!openOK) console.warn("Error: Mi frigio debe mostrar las seis cuerdas al aire.");
+  }catch(err){ console.warn("Auditoría de escalas:",err); }
+}
+auditScaleDrawings();
+
+load();
+</script>
+</body>
+</html>

@@ -231,7 +231,7 @@ select,input,button{max-width:100%}
 .note.open-note.root{width:45px!important;height:45px!important;border-radius:6px!important;font-size:13px!important}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><script>if("serviceWorker"in navigator){addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));}</script></head>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><script>if("serviceWorker"in navigator && location.hostname!=="appassets.androidplatform.net"){addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));}</script></head>
 <body>
 <header>
 <h1>Escalas Flamencas PRO</h1>
@@ -603,6 +603,7 @@ family.onchange=load;scale.onchange=render;root.onchange=render;display.onchange
 toggleFinger.onclick=()=>{showFingers=!showFingers;toggleFinger.textContent=showFingers?"Ocultar digitación sugerida":"Mostrar digitación sugerida";render()};
 
 let audioCtx=null,playTimers=[];
+let audioSuspendedByApp=false,audioGeneration=0;
 let masterOut=null,bodyIR=null;
 
 function ctx(){
@@ -655,7 +656,7 @@ function midiFreq(m){return 440*Math.pow(2,(m-69)/12)}
 // Banco CC0 de FreePats: guitarra clásica española real.
 // Usamos muestras cercanas y playbackRate para cubrir todo el mástil con
 // muy poca transposición, preservando el timbre natural.
-const REAL_SAMPLE_BASE="https://raw.githubusercontent.com/freepats/spanish-classical-guitar/main/samples/";
+const REAL_SAMPLE_BASE=location.hostname==="appassets.androidplatform.net" ? "./samples/" : "https://raw.githubusercontent.com/freepats/spanish-classical-guitar/main/samples/";
 const REAL_SAMPLE_MAP=[
   [40,"E2.flac"], [43,"G2.flac"], [45,"A2.flac"],
   [48,"C3.flac"], [52,"E3.flac"], [55,"G3.flac"], [57,"A3.flac"],
@@ -752,9 +753,12 @@ function sampledGuitarNote(midi,opts={}){
 }
 
 async function guitarNoteMidi(midi,opts={}){
+  if(audioSuspendedByApp)return;
+  const generation=audioGeneration;
   const engine=document.getElementById("soundEngine")?.value||"samples";
   if(engine==="samples"){
     if(realBuffers.size<6)await loadRealSamples(false);
+    if(audioSuspendedByApp || generation!==audioGeneration)return;
     if(sampledGuitarNote(midi,opts))return;
   }
   flamencoPluck(midiFreq(midi),opts.dur||.85,opts.vol||.145,{
@@ -890,9 +894,12 @@ function lightPlayedNote(midi,gap){
     chosen.classList.remove("playing-note");
   },Math.max(120,Math.min(gap*.72,420))));
 }
-function stopPlayback(){playTimers.forEach(clearTimeout);playTimers=[];clearPlayedNotes();lastPlayedGraphicNote=null}
-playScale.onclick=()=>{
- stopPlayback();let s=scales[family.value][scale.value],r=+root.value,seq=s.i.map(x=>60+r+x);
+function stopPlayback(){audioGeneration++;playTimers.forEach(clearTimeout);playTimers=[];clearPlayedNotes();lastPlayedGraphicNote=null}
+playScale.onclick=async()=>{
+ stopPlayback();
+ const generation=audioGeneration;
+ if(document.getElementById("soundEngine").value==="samples" && realBuffers.size<6)await loadRealSamples(false);
+ if(audioSuspendedByApp || generation!==audioGeneration)return;let s=scales[family.value][scale.value],r=+root.value,seq=s.i.map(x=>60+r+x);
  if(direction.value==="down")seq=seq.slice().reverse();
  if(direction.value==="updown")seq=seq.concat(seq.slice(0,-1).reverse());
  let gap=+playSpeed.value;
@@ -1175,7 +1182,10 @@ const cadenceMap={
 };
 
 function chordFreq(m){return midiFreq(m)}
-function playChord(midis,dur=1.28){
+async function playChord(midis,dur=1.28){
+  const generation=audioGeneration;
+  if(document.getElementById("soundEngine").value==="samples" && realBuffers.size<6)await loadRealSamples(false);
+  if(audioSuspendedByApp || generation!==audioGeneration)return;
   // Rasgueo descendente: cada cuerda entra unos milisegundos después.
   // Con muestras reales, cada cuerda conserva pequeñas irregularidades acústicas.
   midis.forEach((m,idx)=>{
@@ -1280,6 +1290,15 @@ playCadence.onclick=()=>{
 chordPalo.onchange=renderChords;
 chordPos.onchange=renderChords;
 renderChords();
+
+function suspendAppAudio(){
+ audioSuspendedByApp=true;audioGeneration++;
+ stopPlayback();stopMetroFn();stopPaloFn();
+ cadenceTimers.forEach(clearTimeout);cadenceTimers=[];
+ if(audioCtx && audioCtx.state!=="closed")audioCtx.close().catch(()=>{});
+ audioCtx=null;masterOut=null;bodyIR=null;
+}
+function resumeAppAudio(){audioSuspendedByApp=false}
 
 function auditScaleDrawings(){
   try{

@@ -1,0 +1,7 @@
+.gradle/
+**/build/
+local.properties
+*.jks
+*.keystore
+
+android/app/src/main/assets/samples/
